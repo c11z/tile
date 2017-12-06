@@ -1,22 +1,21 @@
 import _ from 'lodash';
 import p5 from 'p5';
 
-require.context('../assets/', true, /\.(png|svg|jpg|gif)$/);
-
 class Packer {
   fit(blocks, w, h) {
-    const root = {x: 0, y: 0, w: w, h: h};
+    const root = {x: 0, y: 0, w, h};
+    const fittedBlocks = [];
     let node;
-    let nBlocks = [];
     for (let block of blocks) {
       if ((node = this.findNode(root, block.w, block.h))) {
-        const nBlock = Object.assign(block, {
-          fit: this.splitNode(node, block.w, block.h),
-        });
-        nBlocks.push(nBlock);
+        fittedBlocks.push(
+          Object.assign(block, {
+            fit: this.splitNode(node, block.w, block.h),
+          }),
+        );
       }
     }
-    return nBlocks;
+    return fittedBlocks;
   }
 
   findNode(root, w, h) {
@@ -44,20 +43,8 @@ const sketch = p5 => {
 
   const width = 800;
   const height = 800;
-  var testImage;
-  const pastelColors = ['red', 'orange', 'yellow', 'green', 'blue'];
-  const dimensions = [{w: 100, h: 100}, {w: 178, h: 100}, {w: 150, h: 100}];
-  const generateBlocks = size => {
-    let b = [];
-    for (let i = 0; i < size; i++) {
-      let d = _.sample(dimensions);
-      let c = _.sample(pastelColors);
-      b.push({w: d.w, h: d.h, c: c});
-    }
-    return b;
-  };
-
-  const protoBlocks = generateBlocks(80);
+  const grout = 0;
+  const tileImages = [];
   const protoTiles = [];
 
   p5.keyPressed = () => {
@@ -71,40 +58,72 @@ const sketch = p5 => {
   };
 
   p5.preload = () => {
-    testImage = p5.loadImage('assets/test/test_x100_01.jpg');
+    const indicies = [
+      '00',
+      '01',
+      '02',
+      '03',
+      '04',
+      '05',
+      '06',
+      '07',
+      '08',
+      '09',
+      '10',
+      '11',
+      '12',
+      '13',
+      '14',
+    ];
+    const stations = [
+      'alexanderplatz',
+      'bernauerstrasse',
+      'boddinstrasse',
+      'gesundbrunnen',
+      'heinrichheinestrasse',
+      'hermannplatz',
+      'jannowitzbrucke',
+      'kottbussertor',
+      'leinestrasse',
+      'moritzplatz',
+      'rosenthalerplatz',
+      'schonleinstrasse',
+      'voltastrasse',
+      'weinmeisterstrasse',
+    ];
+    for (let index of indicies) {
+      for (let station of stations) {
+        const imagePath = require(`../assets/${station}_${index}.jpg`);
+        tileImages.push(p5.loadImage(imagePath));
+      }
+    }
   };
 
   p5.setup = () => {
     p5.createCanvas(width, height);
-    p5.noStroke();
+    for (let image of tileImages) {
+      protoTiles.push({w: image.width, h: image.height, image});
+    }
     p5.reset();
     p5.frameRate(60);
   };
 
   p5.reset = () => {
-    const pastelColorMap = {
-      red: p5.color(255, 179, 186),
-      orange: p5.color(255, 223, 186),
-      yellow: p5.color(255, 255, 186),
-      green: p5.color(186, 255, 201),
-      blue: p5.color(186, 255, 255),
-    };
-
-    const shuffledBlocks = _.shuffle(protoBlocks);
-    const blocks = packer.fit(shuffledBlocks, width, height);
+    const shuffledTiles = _.shuffle(protoTiles);
+    const tiles = packer.fit(shuffledTiles, width, height);
     p5.clear();
-    for (let b of blocks) {
-      if ('fit' in b) {
-        p5.fill(pastelColorMap[b.c]);
-        p5.rect(b.fit.x, b.fit.y, b.w, b.h);
+    p5.background(40);
+    for (let tile of tiles) {
+      if ('fit' in tile) {
+        p5.image(
+          tile.image,
+          tile.fit.x + grout,
+          tile.fit.y + grout,
+          tile.w - 2 * grout,
+          tile.h -2 * grout,
+        );
       }
     }
-  };
-
-  p5.reset2 = () => {
-    console.log(testImage);
-    p5.ellipse(0, 0, 100, 100);
-    p5.image(testImage, 0, 0, 100, 100);
   };
 };
 
