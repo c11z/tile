@@ -5,7 +5,7 @@ require.context('../assets/', true, /\.(png|svg|jpg|gif)$/);
 
 class Packer {
   fit(blocks, w, h) {
-    const root = {x: 0, y: 0, w: w, h: h};
+    const root = {x: 0, y: 0, w: w + 100, h: h};
     let node;
     let nBlocks = [];
     for (let block of blocks) {
