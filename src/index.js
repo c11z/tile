@@ -8,10 +8,15 @@ const sketch = p5 => {
   window.p5 = p5;
 
   const packer = new Packer();
+  const tileImages = {};
   const width = 1000;
   const height = 600;
   const grout = 2;
-  const tileImages = {};
+
+  let progression = -10000;
+  const initProgression = -10000;
+  let activeTiles = [];
+
   const indicies = [
     '00',
     '01',
@@ -68,35 +73,41 @@ const sketch = p5 => {
 
   p5.setup = () => {
     p5.createCanvas(width, height);
-    p5.frameRate(1);
+    p5.frameRate(60);
+    p5.reset();
   };
 
   p5.reset = () => {
     const station = _.sample(stations);
     const protoTiles = [];
-    let n = 300;
+    let n = 2000;
     while (n-- > 0) {
       const image = _.sample(tileImages[station]);
       protoTiles.push({w: image.width, h: image.height, image});
     }
-    const tiles = packer.fit(protoTiles, width + 400, height);
+    activeTiles = packer.fit(protoTiles, width + 5000, height);
+  };
+
+  p5.draw = () => {
     p5.clear();
     p5.background(20);
-    for (let tile of tiles) {
+    for (let tile of activeTiles) {
       if ('fit' in tile) {
         p5.image(
           tile.image,
-          tile.fit.x + grout,
+          tile.fit.x + grout + progression,
           tile.fit.y + grout,
           tile.w - 2 * grout,
           tile.h - 2 * grout,
         );
       }
     }
-  };
-
-  p5.draw = () => {
-    p5.reset();
+    progression += 20;
+    console.log(progression);
+    if (progression > -initProgression) {
+      progression = initProgression;
+      p5.reset();
+    }
   };
 };
 
