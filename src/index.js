@@ -110,7 +110,7 @@ const sketch = p5 => {
 
   p5.reset = () => {
     const shuffledTiles = _.shuffle(protoTiles);
-    const tiles = packer.fit(shuffledTiles, width, height);
+    const tiles = packer.fit(shuffledTiles, width + 100, height);
     p5.clear();
     p5.background(40);
     for (let tile of tiles) {
