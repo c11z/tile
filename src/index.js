@@ -13,8 +13,8 @@ const sketch = p5 => {
   const height = 600;
   const grout = 2;
 
-  let progression = -10000;
-  const initProgression = -10000;
+  let progression = 10000;
+  const initProgression = 10000;
   let activeTiles = [];
 
   const indicies = [
@@ -78,6 +78,7 @@ const sketch = p5 => {
   };
 
   p5.reset = () => {
+    progression = initProgression;
     const station = _.sample(stations);
     const protoTiles = [];
     let n = 2000;
@@ -102,10 +103,9 @@ const sketch = p5 => {
         );
       }
     }
-    progression += 20;
+    progression -= 20;
     console.log(progression);
-    if (progression > -initProgression) {
-      progression = initProgression;
+    if (progression < -initProgression) {
       p5.reset();
     }
   };
